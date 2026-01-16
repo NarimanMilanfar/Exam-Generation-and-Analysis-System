@@ -1,0 +1,433 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id                   String               @id @default(cuid())
+  name                 String?
+  email                String               @unique
+  emailVerified        DateTime?
+  image                String?
+  password             String?
+  role                 String               @default("TEACHER")
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  twoFactorCode        String?
+  twoFactorCodeExpires DateTime?
+  twoFactorEnabled     Boolean              @default(false)
+  onboardingCompleted  Boolean              @default(false)
+  onboardingSkipped    Boolean              @default(false)
+  accounts             Account[]
+  activityLogs         ActivityLog[]
+  auditLogs            AuditLog[]
+  courses              Course[]
+  courseCollaborators  CourseCollaborator[]
+  exams                Exam[]
+  examTemplates        ExamTemplate[]
+  passwordResetTokens  PasswordResetToken[]
+  questionBanks        QuestionBank[]
+  sessions             Session[]
+  setPasswordTokens    SetPasswordToken[]
+}
+
+model CourseCollaborator {
+  id        String   @id @default(cuid())
+  courseId  String
+  userId    String
+  role      String   @default("VIEWER")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, userId])
+  @@index([userId])
+  @@index([courseId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Term {
+  id          String             @id @default(cuid())
+  term        String
+  year        Int
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  courses     Course[]
+  enrollments CourseEnrollment[]
+  exams       Exam[]
+  examResults ExamResult[]
+
+  @@unique([term, year], name: "term_year")
+  @@index([year])
+  @@index([term])
+}
+
+model Course {
+  id            String               @id @default(cuid())
+  name          String
+  description   String?
+  color         String               @default("#10b981")
+  section       String?
+  termId        String?
+  userId        String
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  activityLogs  ActivityLog[]
+  term          Term?                @relation(fields: [termId], references: [id])
+  user          User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  collaborators CourseCollaborator[]
+  courseConfig  CourseConfig?
+  enrollments   CourseEnrollment[]
+  exams         Exam[]
+  examTemplates ExamTemplate[]
+  questions     Question[]
+  questionBanks QuestionBank[]
+
+  @@index([userId])
+  @@index([termId])
+  @@index([section])
+  @@index([section, termId])
+}
+
+model CourseConfig {
+  id                      String   @id @default(cuid())
+  courseId                String   @unique
+  defaultQuestionCount    Int      @default(20)
+  defaultFormat           String   @default("MCQ")
+  weightPerQuestion       Float    @default(1.0)
+  negativeMarking         Boolean  @default(false)
+  allowInstructorOverride Boolean  @default(true)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+  course                  Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+}
+
+model QuestionBank {
+  id                String             @id @default(cuid())
+  name              String
+  description       String?
+  topic             String?
+  courseId          String
+  userId            String
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  color             String             @default("#3b82f6")
+  examQuestions     ExamQuestion[]
+  examTemplateItems ExamTemplateItem[]
+  questions         Question[]
+  course            Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Exam {
+  id               String           @id @default(cuid())
+  title            String
+  description      String?
+  courseId         String
+  isPublished      Boolean          @default(false)
+  timeLimit        Int?
+  startDate        DateTime?
+  endDate          DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  instructions     String?
+  negativeMarking  Boolean          @default(false)
+  numberOfVersions Int?             @default(1)
+  passingScore     Float?
+  questionsPerExam Int?
+  shuffleAnswers   Boolean          @default(false)
+  shuffleQuestions Boolean          @default(false)
+  totalPoints      Int?
+  userId           String
+  termId           String
+  section          String?
+  course           Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  term             Term             @relation(fields: [termId], references: [id])
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  generations      ExamGeneration[]
+  questions        ExamQuestion[]
+  results          ExamResult[]
+  variants         ExamVariant[]
+
+  @@index([termId])
+  @@index([courseId, termId])
+  @@index([userId, termId])
+  @@index([section])
+  @@index([section, termId])
+}
+
+model ExamVariant {
+  id            String         @id @default(cuid())
+  examId        String
+  variantCode   String
+  questionOrder String?
+  answerOrder   String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  generationId  String
+  variantNumber Int
+  answerKey     String
+  exam          Exam           @relation(fields: [examId], references: [id], onDelete: Cascade)
+  generation    ExamGeneration @relation(fields: [generationId], references: [id], onDelete: Cascade)
+
+  @@unique([generationId, variantNumber])
+}
+
+model ExamGeneration {
+  id                     String        @id @default(cuid())
+  examId                 String
+  numberOfVariants       Int
+  randomizeQuestionOrder Boolean       @default(false)
+  randomizeOptionOrder   Boolean       @default(false)
+  randomizeTrueFalse     Boolean       @default(false)
+  status                 String        @default("PENDING")
+  generatedAt            DateTime      @default(now())
+  completedAt            DateTime?
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+  exam                   Exam          @relation(fields: [examId], references: [id], onDelete: Cascade)
+  variants               ExamVariant[]
+
+  @@index([examId])
+  @@index([status])
+}
+
+model Question {
+  id                String             @id @default(cuid())
+  text              String
+  type              String             @default("MULTIPLE_CHOICE")
+  options           String?
+  correctAnswer     String
+  points            Int                @default(1)
+  negativePoints    Int?
+  difficulty        String?
+  topic             String?
+  courseId          String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  questionBankId    String
+  examQuestions     ExamQuestion[]
+  examTemplateItems ExamTemplateItem[]
+  course            Course?            @relation(fields: [courseId], references: [id])
+  questionBank      QuestionBank       @relation(fields: [questionBankId], references: [id], onDelete: Cascade)
+  studentAnswers    StudentAnswer[]
+}
+
+model ExamQuestion {
+  id             String       @id @default(cuid())
+  examId         String
+  questionId     String
+  questionBankId String
+  order          Int          @default(0)
+  points         Int?
+  negativePoints Int?
+  createdAt      DateTime     @default(now())
+  exam           Exam         @relation(fields: [examId], references: [id], onDelete: Cascade)
+  questionBank   QuestionBank @relation(fields: [questionBankId], references: [id])
+  question       Question     @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([examId, questionId])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SetPasswordToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model StudentAnswer {
+  id            String     @id @default(cuid())
+  questionId    String
+  examResultId  String
+  studentAnswer String
+  isCorrect     Boolean
+  points        Int        @default(0)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  examResult    ExamResult @relation(fields: [examResultId], references: [id], onDelete: Cascade)
+  question      Question   @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
+
+model Student {
+  id          String             @id @default(cuid())
+  name        String
+  studentId   String?            @unique
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  enrollments CourseEnrollment[]
+  examResults ExamResult[]
+}
+
+model CourseEnrollment {
+  id        String   @id @default(cuid())
+  studentId String
+  courseId  String
+  termId    String
+  createdAt DateTime @default(now())
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  term      Term     @relation(fields: [termId], references: [id])
+
+  @@unique([studentId, courseId, termId])
+  @@index([courseId, termId])
+}
+
+model ExamResult {
+  id             String          @id @default(cuid())
+  examId         String
+  score          Float
+  totalPoints    Int
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  percentage     Float?
+  variantCode    String?
+  termId         String
+  studentId      String
+  exam           Exam            @relation(fields: [examId], references: [id], onDelete: Cascade)
+  student        Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  term           Term            @relation(fields: [termId], references: [id])
+  studentAnswers StudentAnswer[]
+
+  @@unique([studentId, examId, variantCode])
+  @@index([termId, studentId])
+}
+
+model ActivityLog {
+  id         String   @id @default(cuid())
+  userId     String
+  courseId   String
+  action     String
+  resource   String?
+  resourceId String?
+  details    String?
+  createdAt  DateTime @default(now())
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([courseId, createdAt])
+  @@index([userId, createdAt])
+}
+
+model ExamTemplate {
+  id          String             @id @default(cuid())
+  title       String
+  description String?
+  color       String             @default("#165DFF")
+  userId      String
+  courseId    String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  course      Course?            @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items       ExamTemplateItem[]
+
+  @@index([userId])
+  @@index([courseId])
+}
+
+model ExamTemplateItem {
+  id             String        @id @default(cuid())
+  templateId     String
+  sectionId      String?
+  order          Int
+  type           String?
+  points         Int?
+  negativePoints Int?
+  difficulty     String?
+  topic          String?
+  questionBankId String?
+  isRequired     Boolean       @default(false)
+  questionId     String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  questionBank   QuestionBank? @relation(fields: [questionBankId], references: [id])
+  question       Question?     @relation(fields: [questionId], references: [id])
+  template       ExamTemplate  @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@index([templateId])
+  @@index([sectionId])
+  @@index([questionBankId])
+  @@index([questionId])
+}
+
+model GlobalConfig {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([key])
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  userId       String?
+  userEmail    String?
+  action       String
+  resource     String?
+  resourceId   String?
+  details      String?
+  ipAddress    String?
+  userAgent    String?
+  success      Boolean  @default(true)
+  errorMessage String?
+  createdAt    DateTime @default(now())
+  user         User?    @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+  @@index([userEmail, createdAt])
+  @@index([action, createdAt])
+}

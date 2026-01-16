@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/uexam
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=uexam-secret-key-team8-capstone-nextauth
+      - EMAIL_USER=xuhaozhe51@gmail.com
+      - EMAIL_PASS=mratyqnfgoduoati
+      - EMAIL_FROM=noreply@uexam.com
+    volumes:
+      - ./public/uploads:/app/public/uploads
+
+  db:
+    image: postgres:14
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=uexam
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

@@ -1,0 +1,75 @@
+Question Format Guide for DOCX Upload
+==========================================
+
+Please format your questions in your DOCX file exactly as shown below:
+
+MULTIPLE CHOICE EXAMPLE:
+------------------------
+1. What is the capital of France?
+A. London
+B. Paris
+C. Berlin
+D. Madrid
+Answer: B
+Point: 2
+Negative Point: -1
+Topic: Geography
+Difficulty: MEDIUM
+
+TRUE/FALSE EXAMPLE:
+-------------------
+2. The Earth is flat.
+Answer: False
+Point: 1
+Topic: Geography
+Difficulty: EASY
+
+FORMATTING RULES:
+-----------------
+✓ Each question must start with a number followed by a period (e.g., "1. ", "2. ")
+✓ For multiple choice questions:
+  - Use A., B., C., D., etc. for options
+  - Each option should be on a separate line
+  - Answer line should contain the letter only (A, B, C, D)
+✓ For true/false questions:
+  - Answer should be "True" or "False" (case insensitive)
+✓ Always include "Answer: " followed by the correct answer
+✓ Always include "Point: " followed by the number of points
+✓ Separate questions with blank lines
+✓ Save your file in DOCX format
+
+SAMPLE COMPLETE FORMAT:
+-----------------------
+1. Which programming language is used primarily for web development?
+A. Python
+B. JavaScript
+C. Java
+D. C++
+Answer: B
+Point: 3
+Negative Point: -1
+Topic: Web Development Basics
+Difficulty: EASY
+
+2. HTML stands for HyperText Markup Language.
+Answer: True
+Point: 1
+
+3. What does CSS stand for?
+A. Computer Style Sheets
+B. Creative Style Sheets
+C. Cascading Style Sheets
+D. Colorful Style Sheets
+Answer: C
+Point: 2
+Negative Point: -1
+Topic: CSS Fundamentals
+Difficulty: EASY
+
+TIPS:
+-----
+• Keep question text clear and concise
+• Ensure all options are distinct and meaningful
+• Double-check your answers before uploading
+• Points should be positive integers
+• You can have 2-6 options for multiple choice questions 

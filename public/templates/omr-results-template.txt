@@ -1,0 +1,57 @@
+CSV Format Guide for OMR Results Upload
+=======================================
+
+Please format your CSV file exactly as shown below:
+
+REQUIRED COLUMNS:
+-----------------
+Your CSV file must contain these required columns:
+1. studentId - Student ID (must match system records)
+2. variant - Exam variant number (1, 2, 3, etc.)
+3. Q1, Q2, Q3... - Question responses (A, B, C, D, etc.)
+
+SAMPLE CSV FORMAT:
+------------------
+studentId,variant,Q1,Q2,Q3,Q4,Q5
+12345678,1,A,B,C,D,A
+87654321,2,B,A,D,C,B
+11223344,1,C,D,A,B,C
+
+FORMATTING RULES:
+-----------------
+✓ First row must contain column headers
+✓ studentId must be 8 digits and cannot contain letters, symbols or spaces
+✓ variant must be a whole number (1, 2, 3...)
+✓ Question responses must be single letters (A-D)
+✓ No empty cells in required columns
+✓ Save as plain CSV (not Excel .xlsx)
+✓ UTF-8 encoding recommended
+
+TIPS:
+-----
+• For Excel: File → Save As → CSV (Comma delimited)
+• For Google Sheets: File → Download → CSV
+• Verify all student IDs exist in the system
+• Check for consistent variant numbering
+• Remove any extra columns not listed above
+• Preview in a text editor before uploading
+
+EXAMPLE SPREADSHEET LAYOUT:
+---------------------------
+| studentId | variant | Q1 | Q2 | Q3 | Q4 | Q5 |
+|-----------|---------|----|----|----|----|----|
+| 12345678  |    1    | A  | B  | C  | D  | A  |
+| 87654321  |    2    | B  | A  | D  | C  | B  |
+| 11223344  |    1    | C  | D  | A  | B  | C  |
+
+COMMON ISSUES TO AVOID:
+-----------------------
+× Missing studentId or variant columns
+× Invalid question responses (numbers, multiple letters)
+× Mixing variants in same file (should be one variant per file)
+× Extra spaces before/after answers
+× Saving as Excel (.xlsx) instead of CSV
+× Special characters in student IDs
+× Empty rows between records
+
+For questions about CSV format, contact your system administrator. 

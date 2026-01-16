@@ -1,0 +1,62 @@
+name: Test UExam Project
+
+# Run tests on every push and pull request
+on:
+  pull_request:
+    branches: [main, master, development, dev]
+  push:
+    branches: [main, master, development, dev]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20 # Reduced back to 20 with optimizations
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js with aggressive caching
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - name: Cache Puppeteer browser
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/puppeteer
+          key: puppeteer-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            puppeteer-${{ runner.os }}-
+
+      - name: Install dependencies (optimized)
+        run: |
+          # Skip Puppeteer completely in CI - saves ~300MB and 2-3 minutes
+          export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+          # Create temporary package.json without puppeteer for CI
+          cp package.json package.json.backup
+          npm pkg delete dependencies.puppeteer
+          npm ci --prefer-offline --no-audit --no-fund --progress=false
+          # Restore original package.json
+          mv package.json.backup package.json
+          npx prisma generate --schema=database/prisma/schema.prisma || echo "Prisma generate skipped"
+
+      - name: Run linting
+        run: npm run lint
+
+      - name: Run type checking
+        run: npx tsc --noEmit
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build project
+        run: npm run build
+
+      - name: Test summary
+        run: |
+          echo "✅ All tests passed!"
+          echo "✅ Project builds successfully!"
+          echo "✅ Ready for deployment!"

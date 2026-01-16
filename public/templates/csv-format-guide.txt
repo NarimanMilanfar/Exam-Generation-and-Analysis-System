@@ -1,0 +1,61 @@
+CSV Format Guide for Student Roster Upload
+==========================================
+
+Please format your CSV file exactly as shown below:
+
+REQUIRED COLUMNS:
+----------------
+Your CSV file must contain exactly 2 columns with these headers:
+1. id - Student ID number
+2. name - Student full name
+
+SAMPLE CSV FORMAT:
+------------------
+id,name
+11111111,John Smith
+22222222,Jane Doe
+33333333,Michael Johnson
+44444444,Sarah Williams
+55555555,David Brown
+
+FORMATTING RULES:
+-----------------
+✓ First row must contain the column headers: id,name
+✓ Student ID should be numeric (typically 8 digits)
+✓ Student names should be in "First Last" format
+✓ No spaces around commas
+✓ No special characters in names (except hyphens and apostrophes)
+✓ Each student should be on a separate line
+✓ Save your file in CSV format (.csv extension)
+
+TIPS:
+-----
+• Export from Excel: Save As → CSV (Comma delimited)
+• Export from Google Sheets: File → Download → CSV
+• Ensure no empty rows between students
+• Double-check student IDs for accuracy
+• Remove any extra columns beyond id and name
+• Preview your file in a text editor before uploading
+
+EXAMPLE FILES:
+--------------
+You can create your CSV file using any spreadsheet program:
+
+In Excel/Google Sheets:
+| id       | name            |
+|----------|-----------------|
+| 11111111 | John Smith      |
+| 22222222 | Jane Doe        |
+| 33333333 | Michael Johnson |
+
+Then save/export as CSV format.
+
+COMMON ISSUES:
+--------------
+• Missing headers in first row
+• Extra commas in student names
+• Special characters that break CSV format
+• Missing or incorrect student IDs
+• Empty rows in the middle of data
+
+For questions about CSV format, contact your system administrator. 

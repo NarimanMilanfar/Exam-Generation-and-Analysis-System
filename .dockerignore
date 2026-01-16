@@ -1,0 +1,15 @@
+node_modules
+.next
+.git
+.gitignore
+README.md
+HOW_TO_START_CODING.md
+test
+*.md
+Dockerfile
+.dockerignore
+docker-compose.yml
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local 
